@@ -3,6 +3,7 @@ import React, {useState} from "react";
 import {saveEvent} from "./SaveEvents";
 import RenderCalendar from "../CalendarComponents/RenderCalendar";
 import RenderDatePicker from "../CalendarComponents/RenderDatePicker";
+import {string} from "prop-types";
 
 
 const EventForm = () => {
@@ -14,20 +15,21 @@ const EventForm = () => {
 
 
     const formHandle = () => {
-        //const formData = [ name, data, describe ]
-
         if(!eventName || !eventDate || !eventDescribe || !eventTime){
             Alert.alert('All fields must be completed! ');
             return;
         }
 
         const newData = {
+            id: '',
             name: eventName,
             data: eventDate,
             time: eventTime,
             desc: eventDescribe,
         }
         saveEvent(newData);
+
+
         //reset inputs fields
         setName('');
         setDate('');

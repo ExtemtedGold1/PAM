@@ -1,4 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import moment from "moment";
+import {readUInt} from "image-size/dist/readUInt";
+
 
 interface Event {
     id: number;
@@ -23,7 +26,6 @@ export const saveEvent = async (event: Event) => {
             eventsArray.push({...event, id: new Date().getTime() });
         }
         await AsyncStorage.setItem('@events', JSON.stringify(eventsArray));
-        console.log('@events:', eventsArray);
     } catch (e) {
         console.error(e);
     }
@@ -49,7 +51,7 @@ export const fetchEvent = async () => {
 };
 
 export const deleteEvent = async (
-    index: number,
+    id: number,
     updateState: (events: Event[]) => void
 ) => {
     try {
@@ -57,7 +59,9 @@ export const deleteEvent = async (
         if (eventsFromStorage !== null) {
             const parsedEvents = JSON.parse(eventsFromStorage) as Event[];
 
-            if (index >= 0 && index < parsedEvents.length) {
+            const index = parsedEvents.findIndex(event => event.id === id)
+
+            if (index !== -1) {
                 parsedEvents.splice(index, 1);
 
                 await AsyncStorage.setItem('@events', JSON.stringify(parsedEvents));
@@ -97,6 +101,33 @@ export const editEvents = async (
         }
     } catch (e) {
         console.error(e);
+    }
+};
+
+export const removeExpiredEvents = async () => {
+    try {
+        const jsonValue = await AsyncStorage.getItem('@events');
+        if (jsonValue !== null){
+            let events = JSON.parse(jsonValue);
+            // Pobierz aktualną datę i czas
+            const now = moment();
+
+            events = events.filter((event: any) => {
+                const eventDateTime = moment(`${event.data} ${event.time}`, 'YYYY-MM-DD HH:mm');
+                const eventDateTimePlusOneMinute = eventDateTime.add(1, 'minutes');
+                return eventDateTimePlusOneMinute.isSameOrAfter(now);
+            });
+
+            await AsyncStorage.setItem('@events', JSON.stringify(events)).catch(e => {
+                console.log('error saving data', e)
+            });
+        } else {
+            console.log('Theres no events in AsyncStorage')
+            return;
+        }
+
+    } catch (e) {
+        console.error('uwaga błąd:', e)
     }
 };
 

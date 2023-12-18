@@ -18,10 +18,11 @@ const EventList = () => {
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
 
     useEffect(() => {
+
         const updateEvents = async () => {
             try {
                 const eventsFromStorage = await fetchEvent();
-                if (eventsFromStorage !== null) {
+                if (eventsFromStorage !== null && eventsFromStorage !== undefined) {
                     setEvents(eventsFromStorage);
                 }
             } catch (e) {
@@ -29,7 +30,7 @@ const EventList = () => {
             }
         };
         updateEvents();
-    }, [events]);
+    }, []);
 
     const handleEdit = (index: number) => {
         setSelectedEvent(events[index]);
@@ -58,10 +59,10 @@ const EventList = () => {
         setIsEditModalVisible(false);
     };
 
-    const renderItem = ({ item, index }: { item: Event; index: number }) => (
+    const renderItem = ({ item }: { item: Event;}) => (
         <View style={styles.renderItem}>
             <Text style={styles.renderTextContainer}>
-                <Text style={styles.headerText}>Id: {index} </Text>
+                <Text style={styles.headerText}>Id: {item.id} </Text>
                 <Text style={styles.labelText}>Name: {item.name}</Text>
                 <Text style={styles.labelText}>Opis: {item.desc}</Text>
                 <Text style={styles.labelText}>Data: {item.data}</Text>
@@ -70,13 +71,13 @@ const EventList = () => {
             <View style={styles.buttonsEvents}>
                 <TouchableOpacity
                     style={styles.iconButton}
-                    onPress={() => deleteEvent(index, setEvents)}>
+                    onPress={() => deleteEvent(item.id, setEvents)}>
                     <MaterialIcons name="delete" size={30} color="#900" />
                     <Text>delete</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={styles.iconButton}
-                    onPress={() => handleEdit(index)}>
+                    onPress={() => handleEdit(item.id)}>
                     <MaterialIcons name="edit" size={30} color='#4caf50' />
                     <Text>edit</Text>
                 </TouchableOpacity>
@@ -85,7 +86,7 @@ const EventList = () => {
     );
 
     return (
-        <View style={styles.container}>
+        <View>
             <FlatList
                 style={styles.flatList}
                 data={events}
@@ -109,9 +110,6 @@ const EventList = () => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-
-    },
     buttonsEvents: {
         flexDirection: "row",
         alignItems: 'center',

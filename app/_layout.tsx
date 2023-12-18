@@ -2,8 +2,11 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { SplashScreen, Stack } from 'expo-router';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
+import {sendNotification} from "../components/Notification/PushNotification";
+import {checkPermissions, requestPermissons} from "../components/Notification/CheckPermission";
+import {fetchEvent, removeExpiredEvents} from "../components/EventDirectory/SaveEvents";
 
 
 export {
@@ -24,6 +27,16 @@ export default function RootLayout() {
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     ...FontAwesome.font,
   });
+
+  //Notificaions logic, request permisson, chceck permission and send Notificaion of event
+  useEffect(() => {
+    requestPermissons();
+    checkPermissions();
+    sendNotification();
+    fetchEvent();
+    removeExpiredEvents();
+  }, [])
+
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
