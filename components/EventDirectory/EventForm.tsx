@@ -1,18 +1,22 @@
 import {View, Text, TextInput, StyleSheet, TouchableOpacity, Alert} from "react-native"
-import React from "react";
-import saveEvents from "./SaveEvents";
+import React, {useState} from "react";
+import {saveEvent} from "./SaveEvents";
+import RenderCalendar from "../CalendarComponents/RenderCalendar";
+import RenderDatePicker from "../CalendarComponents/RenderDatePicker";
+
 
 const EventForm = () => {
     const [eventName, setName ] = React.useState('');
     const [eventDate, setDate] = React.useState('');
-    const [eventDescribe, setDescribe] = React.useState('')
+    const [eventTime, setEventTime ] = React.useState('');
+    const [eventDescribe, setDescribe] = React.useState('');
 
 
 
     const formHandle = () => {
         //const formData = [ name, data, describe ]
 
-        if(!eventName || !eventDate || !eventDescribe){
+        if(!eventName || !eventDate || !eventDescribe || !eventTime){
             Alert.alert('All fields must be completed! ');
             return;
         }
@@ -20,18 +24,26 @@ const EventForm = () => {
         const newData = {
             name: eventName,
             data: eventDate,
+            time: eventTime,
             desc: eventDescribe,
         }
-        saveEvents(newData);
+        saveEvent(newData);
         //reset inputs fields
         setName('');
         setDate('');
         setDescribe('');
+    };
+
+    const handleDayPress = (date: any) => {
+        setDate(date.dateString);
+    };
+
+    const handleDateChange = (newDate: any) => {
+        setEventTime(newDate)
     }
 
     return (
         <View>
-            <View>
                 <TextInput
                     style={styles.textInput}
                            onChangeText={(text) => setName(text)}
@@ -39,20 +51,17 @@ const EventForm = () => {
                             defaultValue={eventName}/>
                 <TextInput
                     style={styles.textInput}
-                           onChangeText={(text) => setDate(text)}
-                           placeholder='Data (do zrobienia)'
-                            defaultValue={eventDate}
-                />
-                <TextInput
-                    style={styles.textInput}
                     onChangeText={(text) => setDescribe(text)}
-                    placeholder='Więcej opcji (do zrobienia)'
+                    placeholder='Opis'
                     defaultValue={eventDescribe}
                 />
+                <RenderCalendar onDayPressCallBack={handleDayPress}/>
+                <RenderDatePicker onDateChangeCallback={handleDateChange}/>
+
+
                 <TouchableOpacity style={styles.buttonForm} onPress={formHandle}>
-                    <Text style={styles.buttonFormText}>Add Event</Text>
+                    <Text style={styles.buttonFormText}>Add New Event</Text>
                 </TouchableOpacity>
-            </View>
         </View>
     )
 };
@@ -79,7 +88,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
         marginBottom: 10,
         padding: 20,
-        backgroundColor: '#234'
+        backgroundColor: '#4caf50'
     },
     buttonFormText:{
         textAlign:"center",

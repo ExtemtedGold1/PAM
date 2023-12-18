@@ -1,33 +1,71 @@
-// EventList.tsx
-
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
-import { clearAll, deleteEvent } from './ClearEvents';  // Import typu Event
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Modal } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { fetchEvent, deleteEvent, editEvents } from "./SaveEvents";
+import EditEventModal from "./Buttons/EditEventModal";
+
+interface Event {
+    id: number;
+    name: string;
+    desc: string;
+    data: string;
+    time: string;
+}
 
 const EventList = () => {
     const [events, setEvents] = useState<Event[]>([]);
+    const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+    const [isEditModalVisible, setIsEditModalVisible] = useState(false);
 
     useEffect(() => {
-        const fetchData = async () => {
+        const updateEvents = async () => {
             try {
-                const eventsFromStorage = await AsyncStorage.getItem('events');
+                const eventsFromStorage = await fetchEvent();
                 if (eventsFromStorage !== null) {
-                    const parsedEvents = JSON.parse(eventsFromStorage) as Event[];
-                    setEvents(parsedEvents);
+                    setEvents(eventsFromStorage);
                 }
             } catch (e) {
                 console.error(e);
             }
         };
-        fetchData();
+        updateEvents();
     }, [events]);
+
+    const handleEdit = (index: number) => {
+        setSelectedEvent(events[index]);
+        setIsEditModalVisible(true);
+    };
+
+    const handleSaveEdit = async (editedEvent: Partial<Event>) => {
+        if (selectedEvent) {
+            try {
+                const updatedEvents = [...events];
+                const updatedIndex = updatedEvents.findIndex(
+                    (event) => event.id === selectedEvent.id
+                );
+                if (updatedIndex !== -1) {
+                    await editEvents(editedEvent, setEvents);
+
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+        setIsEditModalVisible(false);
+    };
+
+    const handleCloseEditModal = () => {
+        setIsEditModalVisible(false);
+    };
 
     const renderItem = ({ item, index }: { item: Event; index: number }) => (
         <View style={styles.renderItem}>
-            <Text style={styles.renderText}>
-                Name: {item.name} Data: {item.data} Opis: {item.desc}
+            <Text style={styles.renderTextContainer}>
+                <Text style={styles.headerText}>Id: {index} </Text>
+                <Text style={styles.labelText}>Name: {item.name}</Text>
+                <Text style={styles.labelText}>Opis: {item.desc}</Text>
+                <Text style={styles.labelText}>Data: {item.data}</Text>
+                <Text style={styles.labelText}>Time: {item.time}</Text>
             </Text>
             <View style={styles.buttonsEvents}>
                 <TouchableOpacity
@@ -37,8 +75,9 @@ const EventList = () => {
                     <Text>delete</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                    style={styles.iconButton}>
-                    <MaterialIcons name="edit" size={30} color='#4caf50'/>
+                    style={styles.iconButton}
+                    onPress={() => handleEdit(index)}>
+                    <MaterialIcons name="edit" size={30} color='#4caf50' />
                     <Text>edit</Text>
                 </TouchableOpacity>
             </View>
@@ -46,255 +85,223 @@ const EventList = () => {
     );
 
     return (
-        <FlatList
-            style={styles.flatList}
-            data={events}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={renderItem}
-            ListEmptyComponent={<Text style={{ color: 'white', fontSize: 20 }}>No events available</Text>}
-            ListFooterComponent={
-                <TouchableOpacity style={styles.buttonForm} onPress={clearAll}>
-                    <Text style={styles.buttonFormText}>Delete All</Text>
-                </TouchableOpacity>
-            }
-        />
+        <View style={styles.container}>
+            <FlatList
+                style={styles.flatList}
+                data={events}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={renderItem}
+                ListEmptyComponent={<Text style={{ color: 'white', fontSize: 20 }}>No events available</Text>}
+            />
+            <Modal
+                visible={isEditModalVisible}
+                animationType='slide'
+                onRequestClose={handleCloseEditModal}>
+                <EditEventModal
+                    visible={isEditModalVisible}
+                    onClose={handleCloseEditModal}
+                    onSave={handleSaveEdit}
+                    eventData={selectedEvent as Event}
+                />
+            </Modal>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
+    container: {
+
+    },
     buttonsEvents: {
-      flexDirection: "row",
+        flexDirection: "row",
+        alignItems: 'center',
+        justifyContent: "space-between",
     },
     iconButton: {
-        backgroundColor: '#fff',
-        borderStyle: 'solid',
-        borderRadius: 15,
-        borderWidth: 2,
-        borderColor: '#222',
-        textAlign: 'center',
-        width: 60,
+        flexDirection: 'row',
         alignItems: 'center',
+        marginRight: 10,
     },
     flatList: {
         marginTop: 30,
     },
-    renderText: {
-        fontSize: 15,
-        padding: 10,
-        textAlign: 'left',
-        color: '#fff',
-        borderWidth: 2,
-    },
     renderItem: {
-        backgroundColor: '#482880',
-        padding: 20,
-        marginVertical: 8,
-        marginHorizontal: 16,
-        borderWidth: 2,
-        borderRadius: 20,
-    },
-    buttonForm: {
-        marginTop: 10,
+        backgroundColor: '#616161',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 10,
+        borderBottomWidth: 10,
+        borderColor: '#ccc',
         marginBottom: 10,
-        paddingVertical: 20,
-        backgroundColor: '#234',
-        borderRadius: 15,
     },
-    buttonFormText: {
-        textAlign: 'center',
-        color: 'white',
-        fontSize: 20,
+    renderTextContainer: {
+        marginLeft: 10,
+        width: '60%',
     },
+    headerText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 5,
+    },
+    labelText: {
+        fontSize: 14,
+        marginBottom: 3,
+    }
 });
 
 export default EventList;
 
 
+
 // import React, { useEffect, useState } from 'react';
-// import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
-// import { clearAll, deleteEvent } from './ClearEvents';
-// import AsyncStorage from '@react-native-async-storage/async-storage';
+// import { View, Text, StyleSheet, TouchableOpacity, FlatList, Modal } from 'react-native';
 // import { MaterialIcons } from '@expo/vector-icons';
+// import AsyncStorage from '@react-native-async-storage/async-storage';
+// import {fetchEvent, deleteEvent, editEvents} from "./SaveEvents";
+// import EditEventModal from "./Buttons/EditEventModal";
 //
 // interface Event {
+//     id:number;
 //     name: string;
-//     data: string;
 //     desc: string;
+//     data: string;
+//     time: string;
 // }
 //
 // const EventList = () => {
 //     const [events, setEvents] = useState<Event[]>([]);
+//     const [selectedEvent, setSelectedEvents ] = useState<Event|null>(null);
+//     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
 //
 //     useEffect(() => {
-//         const fetchData = async () => {
-//             try {
-//                 const eventsFromStorage = await AsyncStorage.getItem('events');
-//                 if (eventsFromStorage !== null) {
-//                     const parsedEvents = JSON.parse(eventsFromStorage) as Event[];
-//                     setEvents(parsedEvents);
+//         const updateEvents = async () => {
+//             try{
+//                 const eventsFromStorage = await fetchEvent();
+//                 if(eventsFromStorage !== null){
+//                     const UpdatedEvents = [...events, ...eventsFromStorage]
+//                     setEvents(eventsFromStorage);
 //                 }
 //             } catch (e) {
 //                 console.error(e);
 //             }
 //         };
-//         fetchData();
+//         updateEvents();
 //     }, [events]);
 //
-//     // useEffect(() => {
-//     //     console.log('Events in state:', events);
-//     // }, [events]);
+//     const handleEdit = (index: number) => {
+//         setSelectedEvents(events[index]);
+//         setIsEditModalVisible(true);
+//     }
+//
+//     const handleSaveEdit = (editedEvent: Partial<Event>) => {
+//         // do zrobienia w AsyncStore
+//         if(selectedEvent){
+//             const updatedEvents = [...events];
+//             const updatedIndex = updatedEvents.findIndex(
+//                 (event) => event.id === selectedEvent.id
+//             );
+//             if (updatedIndex !== -1){
+//                 updatedEvents[updatedIndex] = {...selectedEvent, ...editedEvent};
+//                 setEvents(updatedEvents);
+//             }
+//         }
+//         setIsEditModalVisible(false);
+//     };
+//
+//     const handleCloseEditModal = () => {
+//         setIsEditModalVisible(false);
+//     }
+//
 //
 //     const renderItem = ({ item, index }: { item: Event; index: number }) => (
 //         <View style={styles.renderItem}>
-//             <Text style={styles.renderText}>
-//                 Name: {item.name} Data: {item.data} Opis: {item.desc}
+//             <Text style={styles.renderTextContener}>
+//                     <Text style={styles.headerText}>Id: {index} </Text>
+//                     <Text style={styles.labelText}>Name: {item.name}</Text>
+//                     <Text style={styles.labelText}>Opis: {item.desc}</Text>
+//                     <Text style={styles.labelText}>Data: {item.data}</Text>
+//                     <Text style={styles.labelText}>Time: {item.time}</Text>
+//             </Text>
+//             <View style={styles.buttonsEvents}>
 //                 <TouchableOpacity
 //                     style={styles.iconButton}
-//                     onPress={() => deleteEvent(index)}>
+//                     onPress={() => deleteEvent(index, setEvents)}>
 //                     <MaterialIcons name="delete" size={30} color="#900" />
+//                     <Text>delete</Text>
 //                 </TouchableOpacity>
-//             </Text>
+//                 <TouchableOpacity
+//                     style={styles.iconButton}
+//                     onPress={() => handleEdit(index)}>
+//                     <MaterialIcons name="edit" size={30} color='#4caf50'/>
+//                     <Text>edit</Text>
+//                 </TouchableOpacity>
+//             </View>
 //         </View>
 //     );
 //
 //     return (
-//         <FlatList style={styles.flatList}
-//             data={events}
-//             keyExtractor={(item, index) => index.toString()}
-//             renderItem={renderItem}
-//             ListEmptyComponent={<Text style={{color: 'white' , fontSize: 20}}>No events available</Text>}
-//             ListFooterComponent={
-//                 <TouchableOpacity style={styles.buttonForm} onPress={clearAll}>
-//                     <Text style={styles.buttonFormText}>Delete All</Text>
-//                 </TouchableOpacity>
-//             }
-//         />
+//         <View style={styles.container}>
+//             <FlatList
+//                 style={styles.flatList}
+//                 data={events}
+//                 keyExtractor={(item, index) => index.toString()}
+//                 renderItem={renderItem}
+//                 ListEmptyComponent={<Text style={{ color: 'white', fontSize: 20 }}>No events available</Text>}
+//             />
+//             <Modal
+//                 visible={isEditModalVisible}
+//                 animationType='slide'
+//                 onRequestClose={handleCloseEditModal}>
+//                 <EditEventModal visible={isEditModalVisible} onClose={handleCloseEditModal} onSave={handleSaveEdit} eventData={selectedEvent as Event}/>
+//             </Modal>
+//         </View>
 //     );
 // };
 //
 // const styles = StyleSheet.create({
-//     iconButton: {
-//         borderStyle: 'solid', borderRadius:15, borderWidth: 2, borderColor: '#900',
-//     },
-//     flatList: {
-//         marginTop: 50,
-//     },
-//     renderText: {
-//         fontSize: 20,
-//         padding: 10,
-//         textAlign: 'center',
-//         color: '#fff'
-//     },
-//     renderItem: {
-//         backgroundColor: 'black',
-//         padding: 20,
-//         marginVertical: 8,
-//         marginHorizontal: 16,
-//     },
-//     buttonForm: {
-//         marginTop: 10,
-//         marginBottom: 10,
-//         paddingVertical: 20,
-//         backgroundColor: '#234',
-//         borderRadius: 15,
-//     },
-//     buttonFormText: {
-//         textAlign: 'center',
-//         color: 'white',
-//         fontSize: 20,
+//     container: {
 //
 //     },
+//     buttonsEvents: {
+//         flexDirection: "row",
+//         alignItems: 'center',
+//         justifyContent: "space-between",
+//     },
+//     iconButton: {
+//         flexDirection: 'row',
+//         alignItems: 'center',
+//         marginRight: 10,
+//     },
+//     flatList: {
+//         marginTop: 30,
+//     },
+//     renderItem: {
+//         //flex: 1,
+//         backgroundColor: '#616161',
+//         flexDirection: 'row',
+//         justifyContent: 'space-between',
+//         alignItems: 'center',
+//         padding: 10,
+//         borderBottomWidth: 10,
+//         borderColor: '#ccc',
+//         marginBottom: 10,
+//
+//     },
+//     renderTextContener: {
+//         marginLeft: 10,
+//         width: '60%',
+//     },
+//     headerText: {
+//         fontSize: 16,
+//         fontWeight: 'bold',
+//         marginBottom: 5,
+//     },
+//     labelText: {
+//         fontSize: 14,
+//         marginBottom: 3,
+//     }
 // });
 //
 // export default EventList;
 //
-//
-//
-
-
-// import React, {useEffect, useState} from "react";
-// import {View, Text, StyleSheet, TouchableOpacity, FlatList, ScrollView} from "react-native";
-// import { clearAll } from "./ClearEvents";
-// import AsyncStorage from "@react-native-async-storage/async-storage";
-//
-// const EventList = () => {
-//     const [events, setEvents ] = useState([]);
-//
-//     useEffect(() => {
-//         const fetchData = async () => {
-//             try {
-//                 const eventsFromStorage = await AsyncStorage.getItem('events');
-//                 console.log(eventsFromStorage)
-//                 if (eventsFromStorage !== null){
-//                     const parsedEvents = JSON.parse(eventsFromStorage);
-//                     console.log(parsedEvents)
-//                     setEvents(parsedEvents);
-//                     console.log(events)
-//
-//                 }
-//
-//             } catch (e) {
-//                 console.error(e);
-//             }
-//         };
-//         fetchData();
-//     }, []);
-//
-//
-//     return (
-//         <View>
-//             <ScrollView>
-//                 {events.map((event, index) => [
-//                     <View key={index} >
-//                         <Text>{event.name}</Text>
-//                         <Text>{event.date}</Text>
-//                         <Text>{event.desc}</Text>
-//                     </View>
-//                 ])}
-//             </ScrollView>
-//             {/*{events.length === 0 ? (*/}
-//             {/*    <Text>No events available</Text>*/}
-//             {/*): (*/}
-//             {/*    <FlatList*/}
-//             {/*        style={styles.flatList}*/}
-//             {/*        data={events}*/}
-//             {/*        renderItem={renderItem}*/}
-//             {/*        keyExtractor={(item, index) =>*/}
-//             {/*            index.toString()}*/}
-//             {/*    />*/}
-//             {/*)}*/}
-//             <TouchableOpacity style={styles.buttonForm} onPress={clearAll}>
-//                 <Text style={styles.buttonFormText}>Wypierdol wszystkie eventy</Text>
-//             </TouchableOpacity>
-//         </View>
-//     )
-// }
-//
-// const styles = StyleSheet.create({
-//     renderItem: {
-//       color:'white',
-//       backgroundColor: 'black',
-//         width: 340,
-//         height: 600,
-//     },
-//     flatList: {
-//       flex:1,
-//     },
-//     list: {
-//         fontSize: 40,
-//         color: '#fff'
-//     },
-//     buttonForm: {
-//         marginTop: 10,
-//         marginBottom: 10,
-//         paddingVertical: 20,
-//         backgroundColor: '#234'
-//     },
-//     buttonFormText:{
-//         textAlign:"center",
-//         color: 'white',
-//         fontSize: 20,
-//     },
-// })
-//
-// export default  EventList

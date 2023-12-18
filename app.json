@@ -21,7 +21,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#222222"
       }
     },
     "web": {
@@ -33,7 +33,10 @@
       "expo-router"
     ],
     "experiments": {
-      "typedRoutes": true
+      "typedRoutes": true,
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
     }
   }
 }

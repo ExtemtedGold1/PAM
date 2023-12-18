@@ -25,7 +25,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "List of Events:",
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="list" color={color} />,
           headerRight: () => (
             <Link href="/modal" asChild>
               <Pressable>
@@ -45,8 +45,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="two"
         options={{
-          title: "kalendarz",
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          title: "Add Event",
+          tabBarIcon: ({ color }) => <TabBarIcon name="plus" color={color} />,
         }}
       />
     </Tabs>
