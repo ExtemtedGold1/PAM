@@ -1,20 +1,19 @@
 PAM - Aplikacja mobilna do zarządzania Wydarzeniami
 Opis
-PAM to prosta i intuicyjna aplikacja mobilna, która umożliwia użytkownikom tworzenie, zarządzanie i śledzenie wydarzeń. Głównym celem aplikacji jest ułatwienie organizacji życia poprzez planowanie i pamiętanie ważnych dat i godzin.
+PAM to prosta aplikacja mobilna, która umożliwia użytkownikom tworzenie, zarządzanie i śledzenie wydarzeń.
 
 Funkcje
 1. Dodawanie Wydarzeń
-Użytkownicy mogą dodawać nowe wydarzenia poprzez podanie nazwy i opisu wydarzenia. To pozwala na łatwe identyfikowanie i przypominanie sobie o konkretnych zdarzeniach.
+Użytkownicy mogą dodawać nowe wydarzenia poprzez podanie nazwy i opisu wydarzenia.
 
 2. Wybieranie Daty i Czasu
-Podczas dodawania wydarzenia użytkownicy mają możliwość wybrania daty i czasu, kiedy wydarzenie ma się odbyć. To pozwala na precyzyjne określenie planowanego terminu.
+Podczas dodawania wydarzenia użytkownicy mają możliwość wybrania daty i czasu, kiedy wydarzenie ma się odbyć.
 
 3. Zarządzanie Listą Wydarzeń
 Wszystkie dodane wydarzenia są przechowywane na liście, co ułatwia szybkie przeglądanie i zarządzanie nimi. Użytkownicy mogą edytować, usuwać lub oznaczać jako zakończone poszczególne pozycje na liście.
 
 4. Powiadomienia
-Aplikacja PAM wysyła powiadomienia użytkownikowi w ustalonym wcześniej czasie przed rozpoczęciem każdego wydarzenia. To pozwala na skuteczne przypomnienie o planowanych aktywnościach i uniknięcie zapomnienia.
-
+Aplikacja PAM wysyła powiadomienia użytkownikowi w ustalonym wcześniej czasie przed rozpoczęciem każdego wydarzenia.
 Instrukcje użytkowania
 Dodawanie Wydarzeń:
 
