@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, Modal } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { fetchEvent, deleteEvent, editEvents } from "./SaveEvents";
+import {fetchEvent, deleteEvent, editEvents, removeExpiredEvents} from "./SaveEvents";
 import EditEventModal from "./Buttons/EditEventModal";
 
 interface Event {
@@ -17,24 +17,27 @@ const EventList = () => {
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
 
-    useEffect(() => {
 
-        const updateEvents = async () => {
-            try {
-                const eventsFromStorage = await fetchEvent();
-                if (eventsFromStorage !== null && eventsFromStorage !== undefined) {
-                    setEvents(eventsFromStorage);
-                }
-            } catch (e) {
-                console.error(e);
-            }
-        };
+
+    useEffect(() => {
         updateEvents();
     }, []);
 
+    const updateEvents = async () => {
+        try {
+            const eventsFromStorage = await fetchEvent();
+            if (eventsFromStorage !== null && eventsFromStorage !== undefined) {
+                setEvents(eventsFromStorage);
+                removeExpiredEvents()
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
+
     const handleEdit = (index: number) => {
-        setSelectedEvent(events[index]);
-        setIsEditModalVisible(true);
+        EditEventModal(index);
     };
 
     const handleSaveEdit = async (editedEvent: Partial<Event>) => {
@@ -45,7 +48,10 @@ const EventList = () => {
                     (event) => event.id === selectedEvent.id
                 );
                 if (updatedIndex !== -1) {
-                    await editEvents(editedEvent, setEvents);
+                    await editEvents(editedEvent, (updatedEvents) => {
+                        setEvents(updatedEvents);
+                        setIsEditModalVisible(false);
+                    });
 
                 }
             } catch (e) {
@@ -62,7 +68,6 @@ const EventList = () => {
     const renderItem = ({ item }: { item: Event;}) => (
         <View style={styles.renderItem}>
             <Text style={styles.renderTextContainer}>
-                <Text style={styles.headerText}>Id: {item.id} </Text>
                 <Text style={styles.labelText}>Name: {item.name}</Text>
                 <Text style={styles.labelText}>Opis: {item.desc}</Text>
                 <Text style={styles.labelText}>Data: {item.data}</Text>

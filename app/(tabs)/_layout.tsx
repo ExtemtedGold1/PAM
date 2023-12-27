@@ -24,8 +24,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "List of Events:",
-          tabBarIcon: ({ color }) => <TabBarIcon name="list" color={color} />,
+            unmountOnBlur: true,
+          title: "Add Event",
+          tabBarIcon: ({ color }) => <TabBarIcon name="plus" color={color} />,
           headerRight: () => (
             <Link href="/modal" asChild>
               <Pressable>
@@ -44,9 +45,10 @@ export default function TabLayout() {
       />
       <Tabs.Screen
         name="two"
-        options={{
-          title: "Add Event",
-          tabBarIcon: ({ color }) => <TabBarIcon name="plus" color={color} />,
+        options={{unmountOnBlur: true,
+          title: "List of Events",
+          tabBarIcon: ({ color }) => <TabBarIcon name="list" color={color}
+           />
         }}
       />
     </Tabs>

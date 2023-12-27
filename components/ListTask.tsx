@@ -10,9 +10,6 @@ function Events (){
         setIsVisible(!isVisible);
     };
 
-
-
-
     return(
         <View style={styles.viewSheet}>
             <EventList/>

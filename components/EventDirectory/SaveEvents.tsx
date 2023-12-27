@@ -1,8 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from "moment";
-import {readUInt} from "image-size/dist/readUInt";
-
-
+import {sendNotification} from "../Notification/PushNotification";
 interface Event {
     id: number;
     name: string;
@@ -10,7 +8,6 @@ interface Event {
     data: string;
     time: string;
 }
-
 export const saveEvent = async (event: Event) => {
     try {
         let eventsArray: Event[] = [];
@@ -26,6 +23,7 @@ export const saveEvent = async (event: Event) => {
             eventsArray.push({...event, id: new Date().getTime() });
         }
         await AsyncStorage.setItem('@events', JSON.stringify(eventsArray));
+        await sendNotification();
     } catch (e) {
         console.error(e);
     }

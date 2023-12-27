@@ -2,12 +2,11 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { SplashScreen, Stack } from 'expo-router';
-import React, { useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 import { useColorScheme } from 'react-native';
 import {sendNotification} from "../components/Notification/PushNotification";
 import {checkPermissions, requestPermissons} from "../components/Notification/CheckPermission";
 import {fetchEvent, removeExpiredEvents} from "../components/EventDirectory/SaveEvents";
-
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -32,10 +31,13 @@ export default function RootLayout() {
   useEffect(() => {
     requestPermissons();
     checkPermissions();
-    sendNotification();
     fetchEvent();
     removeExpiredEvents();
-  }, [])
+  }, []);
+
+  useEffect(() => {
+    sendNotification();
+  }, []);
 
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.

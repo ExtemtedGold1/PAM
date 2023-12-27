@@ -1,9 +1,8 @@
 import {View, Text, TextInput, StyleSheet, TouchableOpacity, Alert} from "react-native"
-import React, {useState} from "react";
+import React from "react";
 import {saveEvent} from "./SaveEvents";
 import RenderCalendar from "../CalendarComponents/RenderCalendar";
 import RenderDatePicker from "../CalendarComponents/RenderDatePicker";
-import {string} from "prop-types";
 
 
 const EventForm = () => {
@@ -14,14 +13,14 @@ const EventForm = () => {
 
 
 
-    const formHandle = () => {
+    const formHandle =  () => {
         if(!eventName || !eventDate || !eventDescribe || !eventTime){
             Alert.alert('All fields must be completed! ');
             return;
         }
 
         const newData = {
-            id: '',
+            id: 0,
             name: eventName,
             data: eventDate,
             time: eventTime,
