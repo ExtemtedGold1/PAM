@@ -36,8 +36,10 @@ const EventList = () => {
     };
 
 
-    const handleEdit = (index: number) => {
-        EditEventModal(index);
+    const handleEdit = (id: number) => {
+        const eventToEdit  = events.find((event) => event.id === id);
+        setSelectedEvent(eventToEdit);
+        setIsEditModalVisible(true);
     };
 
     const handleSaveEdit = async (editedEvent: Partial<Event>) => {
@@ -51,6 +53,7 @@ const EventList = () => {
                     await editEvents(editedEvent, (updatedEvents) => {
                         setEvents(updatedEvents);
                         setIsEditModalVisible(false);
+                        setSelectedEvent(null);
                     });
 
                 }
@@ -63,15 +66,16 @@ const EventList = () => {
 
     const handleCloseEditModal = () => {
         setIsEditModalVisible(false);
+        setSelectedEvent(null);
     };
 
     const renderItem = ({ item }: { item: Event;}) => (
         <View style={styles.renderItem}>
             <Text style={styles.renderTextContainer}>
-                <Text style={styles.labelText}>Name: {item.name}</Text>
-                <Text style={styles.labelText}>Opis: {item.desc}</Text>
-                <Text style={styles.labelText}>Data: {item.data}</Text>
-                <Text style={styles.labelText}>Time: {item.time}</Text>
+                <Text style={styles.labelText}>Name: {item.name} </Text>
+                <Text style={styles.labelText}>Opis: {item.desc} </Text>
+                <Text style={styles.labelText}>Data: {item.data} </Text>
+                <Text style={styles.labelText}>Time: {item.time} </Text>
             </Text>
             <View style={styles.buttonsEvents}>
                 <TouchableOpacity
@@ -107,7 +111,7 @@ const EventList = () => {
                     visible={isEditModalVisible}
                     onClose={handleCloseEditModal}
                     onSave={handleSaveEdit}
-                    eventData={selectedEvent as Event}
+                    eventData={selectedEvent}
                 />
             </Modal>
         </View>

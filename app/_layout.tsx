@@ -3,8 +3,7 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { useFonts } from 'expo-font';
 import { SplashScreen, Stack } from 'expo-router';
 import React, {useEffect, useState} from 'react';
-import { useColorScheme } from 'react-native';
-import {sendNotification} from "../components/Notification/PushNotification";
+import { useColorScheme,Button } from 'react-native';
 import {checkPermissions, requestPermissons} from "../components/Notification/CheckPermission";
 import {fetchEvent, removeExpiredEvents} from "../components/EventDirectory/SaveEvents";
 
@@ -35,10 +34,6 @@ export default function RootLayout() {
     removeExpiredEvents();
   }, []);
 
-  useEffect(() => {
-    sendNotification();
-  }, []);
-
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
@@ -62,11 +57,11 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-      </Stack>
-    </ThemeProvider>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+        </Stack>
+      </ThemeProvider>
   );
 }
